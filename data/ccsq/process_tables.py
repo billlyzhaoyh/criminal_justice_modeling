@@ -68,7 +68,7 @@ def extract_all_relevant_tabs_as_csv(ods_file):
 
 
 if __name__ == "__main__":
-    ods_file_path = "./data/ccsq/raw/ccsq_accessible_publication_tables_2024Q3.ods"
+    ods_file_path = "./data/ccsq/raw/ccsq_accessible_publication_tables_2024Q4.ods"
     meta_data = extract_meta_data_from_contents(ods_file_path)
     print(meta_data)
     saved_files = extract_all_relevant_tabs_as_csv(ods_file_path)

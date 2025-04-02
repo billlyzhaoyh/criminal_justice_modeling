@@ -116,5 +116,5 @@ if __name__ == "__main__":
     final_df = pd.concat([police_df, court_df, remand_df, sentence_df], axis=0)
     print(final_df[column_years_sentence])
     os.makedirs(f"{OUTPUT_DIR}/overview-tables-September-2024", exist_ok=True)
-    final_df[column_years_sentence].to_csv(f"{OUTPUT_DIR}/overview-tables-September-2024/final_cjsq_data.csv", index=False)
+    final_df[column_years_sentence].reset_index().to_csv(f"{OUTPUT_DIR}/overview-tables-September-2024/final_cjsq_data.csv", index=False)
         
