@@ -4,6 +4,19 @@ from datetime import datetime
 import pandas as pd
 
 
+def clean_column_name(name):
+    """
+    Clean column names by:
+    1. Replacing spaces with underscores
+    2. Removing special characters
+    3. Converting to lowercase
+    """
+    # Replace spaces and special characters with underscores
+    cleaned = name.replace(" ", "_").replace(":", "").replace("(", "").replace(")", "")
+    # Convert to lowercase
+    return cleaned.lower()
+
+
 def sort_columns_chronologically(df):
     """
     Sort columns chronologically, keeping 'metric_name' as the first column.
@@ -49,6 +62,7 @@ def process_ccjs_data():
     3. Splitting into quarterly and annual data
     4. Transforming both into wide format
     5. Sorting columns chronologically
+    6. Cleaning column names
     """
     try:
         # Get the most recent file in the raw directory
@@ -81,6 +95,10 @@ def process_ccjs_data():
         ]
         filtered_df = filtered_df[columns_to_keep]
 
+        unique_metric_names = filtered_df["metric_name"].unique()
+        print(f"Unique metric names: {unique_metric_names}")
+        print(f"Number of unique metric names: {len(unique_metric_names)}")
+
         # Split into quarterly and annual data
         quarterly_df = filtered_df[
             filtered_df["date_granularity"] == "Quarterly"
@@ -103,18 +121,24 @@ def process_ccjs_data():
         quarterly_wide = sort_columns_chronologically(quarterly_wide)
         annual_wide = sort_columns_chronologically(annual_wide)
 
-        # Display information about the transformed data
-        print(f"\nQuarterly Data Overview:")
-        print(f"Shape: {quarterly_wide.shape}")
-        print("\nColumns:")
-        for col in quarterly_wide.columns:
-            print(f"- {col}")
+        # Clean column names
+        quarterly_wide.columns = [
+            clean_column_name(col) for col in quarterly_wide.columns
+        ]
+        annual_wide.columns = [clean_column_name(col) for col in annual_wide.columns]
 
-        print("\nAnnual Data Overview:")
-        print(f"Shape: {annual_wide.shape}")
-        print("\nColumns:")
-        for col in annual_wide.columns:
-            print(f"- {col}")
+        # Track how many metrics are in the quarterly and annual data
+        quarterly_metrics = quarterly_wide["metric_name"].unique()
+        annual_metrics = annual_wide["metric_name"].unique()
+        print(f"Number of metrics in quarterly data: {len(quarterly_metrics)}")
+        print(f"Number of metrics in annual data: {len(annual_metrics)}")
+
+        # find out which metrics are missing from the unique metrics list from both quarterly and annual data
+        missing_metrics = (
+            set(unique_metric_names) - set(quarterly_metrics) - set(annual_metrics)
+        )
+        print(f"Number of missing metrics: {len(missing_metrics)}")
+        print(f"Missing metrics: {missing_metrics}")
 
         # Save the transformed data
         output_dir = "./data/ccjs/processed"
